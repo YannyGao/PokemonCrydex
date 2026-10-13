@@ -235,6 +235,7 @@ state.audio.addEventListener('ended', () => {
 
 function answerQuestion(id) {
   if (state.answered || !state.current) return;
+  primeAudioForAutoplay();
   state.answered = true;
   const correct = id === state.current.id;
   const isNewDiscovery = correct && !state.stats.discovered.includes(state.current.id);
@@ -267,6 +268,18 @@ function answerQuestion(id) {
   } else {
     state.advanceTimer = window.setTimeout(() => advanceQuestion(answeredToken), reducedMotion.matches ? 350 : 1350);
   }
+}
+
+function primeAudioForAutoplay() {
+  if (!state.soundOn || !state.audio.src || !state.audio.paused) return;
+  const previousVolume = state.audio.volume;
+  state.audio.volume = 0;
+  const permission = state.audio.play();
+  permission?.then(() => {
+    state.audio.pause();
+    state.audio.currentTime = 0;
+    state.audio.volume = previousVolume;
+  }).catch(() => { state.audio.volume = previousVolume; });
 }
 
 function updateDailyStreak() {
