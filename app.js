@@ -169,6 +169,7 @@ async function newQuestion(reset = false) {
     $('#practiceStage .recorder-topline span:first-child').textContent = `FIELD RECORDER / CRY ${pad(state.current.id)}`;
     renderAnswers();
     setAudio(state.current.cry);
+    if (!reset && state.soundOn) await playCurrent(true);
   } catch (error) {
     $('#answerGrid').innerHTML = `<div class="empty-recent">Couldn’t tune into the Pokédex. Check your connection and try again.</div>`;
     $('#practiceStatus').innerHTML = '<button class="secondary-button" id="retryQuiz">Try again</button>';
@@ -203,7 +204,7 @@ function stopCurrentAudioUI() {
   $('.sound-deck')?.classList.remove('is-playing');
 }
 
-async function playCurrent() {
+async function playCurrent(silentFailure = false) {
   if (!state.soundOn) { showToast('Turn sound on to hear the cry.'); return; }
   if (!state.current?.cry) { showToast('This cry is unavailable.'); return; }
   try {
@@ -218,7 +219,11 @@ async function playCurrent() {
     $('.sound-deck').classList.add('is-playing');
     state.stats.heard += 1;
     saveStats();
-  } catch { showToast('Audio could not play. Tap again or check your connection.'); }
+  } catch {
+    $('#playCry').classList.remove('is-playing');
+    $('.sound-deck').classList.remove('is-playing');
+    if (!silentFailure) showToast('Audio could not play. Tap again or check your connection.');
+  }
 }
 
 state.audio.addEventListener('ended', () => {
@@ -441,7 +446,7 @@ function showToast(message) {
 function bindEvents() {
   $$('[data-view]').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
   $$('[data-go-practice]').forEach(button => button.addEventListener('click', () => switchView('practice')));
-  $('#playCry').addEventListener('click', playCurrent);
+  $('#playCry').addEventListener('click', () => playCurrent());
   $('#playDiscoveryCry').addEventListener('click', playDiscoveryCry);
   $('#continueDiscovery').addEventListener('click', () => closeDiscovery());
   $('#closeDiscovery').addEventListener('click', () => closeDiscovery());
