@@ -2,6 +2,10 @@
 
 An audio-first Pokémon study app for learning every Pokémon cry.
 
+## Play live
+
+**[Open Crydex in your browser →](https://yannygao.github.io/PokemonCrydex/)**
+
 ## Run locally
 
 From this folder, start any static web server:
@@ -17,7 +21,7 @@ Then open `http://localhost:4173`.
 - Real game cries and official-artwork sprite references loaded from PokéAPI
 - Decoded cry audio rendered as its actual waveform
 - Ten-question, multiple-choice listening sessions
-- Generation filters and keyboard shortcuts (`Space` to replay, `1`–`4` to answer)
+- Generation filters and a keyboard shortcut (`Space` to replay)
 - Searchable National Pokédex sound library
 - Favorites, discoveries, accuracy, and streaks saved in `localStorage`
 - Responsive Pokédex-inspired desktop and mobile layouts
