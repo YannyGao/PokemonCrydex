@@ -145,7 +145,7 @@ function randomIds(count, generation = state.generation, exclude = []) {
 async function newQuestion(reset = false) {
   clearTimeout(state.advanceTimer);
   stopCurrentAudioUI();
-  if (!$('#discoveryOverlay').hidden) closeDiscovery();
+  if (!$('#discoveryOverlay').hidden) closeDiscovery(false);
   if (reset) { state.round = 1; state.score = 0; }
   $('#sessionComplete').hidden = true;
   $('#practiceStage').hidden = false;
@@ -427,8 +427,8 @@ function bindEvents() {
   $$('[data-go-practice]').forEach(button => button.addEventListener('click', () => switchView('practice')));
   $('#playCry').addEventListener('click', playCurrent);
   $('#playDiscoveryCry').addEventListener('click', playDiscoveryCry);
-  $('#continueDiscovery').addEventListener('click', closeDiscovery);
-  $('#closeDiscovery').addEventListener('click', closeDiscovery);
+  $('#continueDiscovery').addEventListener('click', () => closeDiscovery());
+  $('#closeDiscovery').addEventListener('click', () => closeDiscovery());
   $('#discoveryOverlay').addEventListener('click', event => { if (event.target === event.currentTarget) closeDiscovery(); });
   $('#practiceAgain').addEventListener('click', () => newQuestion(true));
   $('#reviewProgress').addEventListener('click', () => switchView('progress'));
