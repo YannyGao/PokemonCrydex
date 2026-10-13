@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f7f0df" />
+    <meta name="description" content="Learn every Pokémon cry through playful audio-first quizzes." />
+    <title>Crydex — Learn every Pokémon cry</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="#practice" data-route="practice" aria-label="Crydex home">
+          <span class="brand-mark" aria-hidden="true"><span></span></span>
+          <span>CRYDEX</span>
+        </a>
+
+        <nav class="side-nav">
+          <button class="nav-item is-active" data-view="practice">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 9v6m4-9v12m4-8v4m4-7v10m4-6v2"/></svg>
+            <span>Practice</span>
+          </button>
+          <button class="nav-item" data-view="library">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22V5.5Zm16 0A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22V5.5Z"/></svg>
+            <span>Sound library</span>
+          </button>
+          <button class="nav-item" data-view="progress">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></svg>
+            <span>Progress</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-foot">
+          <div class="daily-streak">
+            <span class="spark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2c.8 6.2 3.8 9.2 10 10-6.2.8-9.2 3.8-10 10-.8-6.2-3.8-9.2-10-10 6.2-.8 9.2-3.8 10-10Z"/></svg></span>
+            <div><strong id="sideStreak">0 day streak</strong><span>Keep listening</span></div>
+          </div>
+          <p>Data and media via <a href="https://pokeapi.co" target="_blank" rel="noreferrer">PokéAPI</a>. Pokémon © Nintendo / Creatures / GAME FREAK.</p>
+        </div>
+      </aside>
+
+      <main id="main">
+        <section class="view is-active" id="practiceView" data-view-panel="practice">
+          <header class="topbar">
+            <div>
+              <h1>Who made that sound?</h1>
+            </div>
+            <div class="top-actions">
+              <label class="select-wrap">
+                <span class="sr-only">Generation</span>
+                <select id="generationSelect">
+                  <option value="all">All generations</option>
+                  <option value="1">Generation I</option><option value="2">Generation II</option>
+                  <option value="3">Generation III</option><option value="4">Generation IV</option>
+                  <option value="5">Generation V</option><option value="6">Generation VI</option>
+                  <option value="7">Generation VII</option><option value="8">Generation VIII</option>
+                  <option value="9">Generation IX</option>
+                </select>
+                <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg>
+              </label>
+              <button class="icon-button" id="soundToggle" aria-label="Sound is on" aria-pressed="true">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4H4Zm12.5-1.5a5 5 0 0 1 0 7m2-9a8 8 0 0 1 0 11"/></svg>
+              </button>
+            </div>
+          </header>
+
+          <div class="session-strip">
+            <div class="session-progress"><span id="roundLabel">Sound 1 of 10</span><div class="track"><span id="roundProgress"></span></div></div>
+            <div class="session-score"><span>Session score</span><strong id="sessionScore">0</strong></div>
+          </div>
+
+          <div class="practice-stage" id="practiceStage">
+            <section class="sound-deck" aria-labelledby="listenTitle">
+              <div class="recorder-topline"><span>FIELD RECORDER / CRY 001</span><span class="live-dot">READY</span></div>
+              <div class="sound-main">
+                <button class="play-button" id="playCry" aria-label="Play Pokémon cry">
+                  <svg class="play-icon" aria-hidden="true" viewBox="0 0 32 32"><path d="M11 7.5v17l14-8.5-14-8.5Z"/></svg>
+                  <span class="playing-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+                </button>
+                <div class="wave-wrap">
+                  <p id="listenTitle">Listen closely</p>
+                  <div class="waveform" id="waveform" aria-hidden="true"></div>
+                  <span id="playHint">Press space to replay</span>
+                </div>
+              </div>
+              <div class="recorder-scale" aria-hidden="true"><span>0:00</span><i></i><i></i><i></i><i></i><i></i><span>0:03</span></div>
+            </section>
+
+            <section class="answer-zone" aria-labelledby="answerTitle">
+              <div class="answer-heading">
+                <h2 id="answerTitle">Choose your answer</h2>
+                <span>1 try</span>
+              </div>
+              <div class="answer-grid" id="answerGrid" aria-live="polite">
+                <div class="answer-skeleton"></div><div class="answer-skeleton"></div>
+                <div class="answer-skeleton"></div><div class="answer-skeleton"></div>
+              </div>
+            </section>
+
+            <section class="reveal-panel" id="revealPanel" hidden aria-live="polite">
+              <div class="reveal-art"><span class="reveal-number" id="revealNumber">#000</span><img id="revealImage" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png" alt="" /></div>
+              <div class="reveal-copy">
+                <span class="result-pill" id="resultPill">Correct</span>
+                <h2 id="revealName">Pokémon</h2>
+                <p id="revealMeta">Pokémon details</p>
+                <button class="primary-button" id="nextQuestion">Next sound <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M4 10h11m-4-4 4 4-4 4"/></svg></button>
+              </div>
+            </section>
+          </div>
+
+          <div class="status-message" id="practiceStatus" role="status"></div>
+          <section class="session-complete" id="sessionComplete" hidden>
+            <div class="completion-burst" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 4v8m0 24v8M4 24h8m24 0h8M10 10l6 6m16 16 6 6m0-28-6 6M16 32l-6 6"/><circle cx="24" cy="24" r="7"/></svg></div>
+            <div><span>Session complete</span><h2 id="completeScore">0 / 10</h2><p id="completeMessage">Nice listening. Every replay sharpens your ear.</p></div>
+            <div class="complete-actions"><button class="primary-button" id="practiceAgain">Practice again</button><button class="secondary-button" id="reviewProgress">Review progress</button></div>
+          </section>
+        </section>
+
+        <section class="view" id="libraryView" data-view-panel="library" hidden>
+          <header class="topbar library-header">
+            <div><h1>Sound library</h1><p>Explore every Pokémon, hear its cry, and mark the sounds you know.</p></div>
+          </header>
+          <div class="library-tools">
+            <label class="search-box">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg>
+              <span class="sr-only">Search Pokémon</span>
+              <input id="searchInput" type="search" placeholder="Search by name or number" autocomplete="off" />
+            </label>
+            <label class="select-wrap"><span class="sr-only">Filter library by generation</span><select id="libraryGeneration"><option value="all">All generations</option><option value="1">Gen I</option><option value="2">Gen II</option><option value="3">Gen III</option><option value="4">Gen IV</option><option value="5">Gen V</option><option value="6">Gen VI</option><option value="7">Gen VII</option><option value="8">Gen VIII</option><option value="9">Gen IX</option></select><svg aria-hidden="true" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4"/></svg></label>
+          </div>
+          <div class="library-count"><strong id="libraryCount">Loading Pokédex…</strong><span>Tap any entry to hear its cry</span></div>
+          <div class="pokemon-list" id="pokemonList"></div>
+          <button class="secondary-button load-more" id="loadMore" hidden>Load more Pokémon</button>
+        </section>
+
+        <section class="view" id="progressView" data-view-panel="progress" hidden>
+          <header class="topbar"><div><h1>Progress</h1><p>Small sessions add up. Every replay trains your ear.</p></div></header>
+          <div class="progress-hero">
+            <div class="accuracy-board"><small>Listening accuracy</small><span id="accuracyValue">0%</span><div class="accuracy-track"><i id="accuracyBar"></i></div><em>All practice sessions</em></div>
+            <div class="progress-summary"><h2 id="progressHeadline">Your field notes are ready.</h2><p id="progressCopy">Complete your first sound quiz to start tracking mastery.</p><button class="primary-button" data-go-practice>Start practicing</button></div>
+          </div>
+          <div class="stats-ledger">
+            <div><span>Sounds heard</span><strong id="heardStat">0</strong></div>
+            <div><span>Correct answers</span><strong id="correctStat">0</strong></div>
+            <div><span>Best streak</span><strong id="streakStat">0</strong></div>
+            <div><span>Discovered</span><strong id="discoveredStat">0</strong></div>
+          </div>
+          <section class="recent-section"><div><h2>Recently discovered</h2><p>Your latest correct answers appear here.</p></div><div class="recent-list" id="recentList"></div></section>
+        </section>
+      </main>
+    </div>
+
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+      <button class="is-active" data-view="practice"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 9v6m4-9v12m4-8v4m4-7v10m4-6v2"/></svg><span>Practice</span></button>
+      <button data-view="library"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v17H6.5A2.5 2.5 0 0 0 4 22V5.5Zm16 0A2.5 2.5 0 0 0 17.5 3H13v17h4.5A2.5 2.5 0 0 1 20 22V5.5Z"/></svg><span>Library</span></button>
+      <button data-view="progress"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></svg><span>Progress</span></button>
+    </nav>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
