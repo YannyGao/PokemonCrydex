@@ -28,6 +28,9 @@ const state = {
   waveformToken: 0,
   waveformFrame: null,
   advanceTimer: null,
+  questionToken: 0,
+  questionAdvanced: false,
+  discoveryToken: 0,
   decodeContext: null,
   stats: loadStats()
 };
@@ -144,6 +147,8 @@ function randomIds(count, generation = state.generation, exclude = []) {
 
 async function newQuestion(reset = false) {
   clearTimeout(state.advanceTimer);
+  state.questionToken += 1;
+  state.questionAdvanced = false;
   stopCurrentAudioUI();
   if (!$('#discoveryOverlay').hidden) closeDiscovery(false);
   if (reset) { state.round = 1; state.score = 0; }
@@ -228,6 +233,7 @@ function answerQuestion(id) {
   state.answered = true;
   const correct = id === state.current.id;
   const isNewDiscovery = correct && !state.stats.discovered.includes(state.current.id);
+  const answeredToken = state.questionToken;
   state.stats.answered += 1;
   $('#answerGrid').classList.add('is-judged');
   $$('.answer-button').forEach(button => {
@@ -250,8 +256,12 @@ function answerQuestion(id) {
   updateDailyStreak();
   saveStats();
   $('#practiceStatus').textContent = correct ? 'Correct — cry identified.' : `That was ${state.current.name}.`;
-  if (isNewDiscovery) state.advanceTimer = window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
-  else state.advanceTimer = window.setTimeout(nextQuestion, reducedMotion.matches ? 350 : 1350);
+  if (isNewDiscovery) {
+    state.discoveryToken = answeredToken;
+    state.advanceTimer = window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
+  } else {
+    state.advanceTimer = window.setTimeout(() => advanceQuestion(answeredToken), reducedMotion.matches ? 350 : 1350);
+  }
 }
 
 function updateDailyStreak() {
@@ -292,7 +302,7 @@ function closeDiscovery(advance = true) {
   state.audio.pause();
   $('#playDiscoveryCry').classList.remove('is-playing');
   window.setTimeout(() => { overlay.hidden = true; }, reducedMotion.matches ? 0 : 220);
-  if (advance) state.advanceTimer = window.setTimeout(nextQuestion, reducedMotion.matches ? 0 : 180);
+  if (advance) state.advanceTimer = window.setTimeout(() => advanceQuestion(state.discoveryToken), reducedMotion.matches ? 0 : 180);
 }
 
 async function playDiscoveryCry() {
@@ -316,6 +326,12 @@ function nextQuestion() {
     state.round += 1;
     newQuestion();
   }
+}
+
+function advanceQuestion(token) {
+  if (token !== state.questionToken || state.questionAdvanced) return;
+  state.questionAdvanced = true;
+  nextQuestion();
 }
 
 function finishSession() {
