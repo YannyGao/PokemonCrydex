@@ -27,6 +27,7 @@ const state = {
   soundOn: true,
   waveformToken: 0,
   waveformFrame: null,
+  advanceTimer: null,
   decodeContext: null,
   stats: loadStats()
 };
@@ -142,6 +143,7 @@ function randomIds(count, generation = state.generation, exclude = []) {
 }
 
 async function newQuestion(reset = false) {
+  clearTimeout(state.advanceTimer);
   stopCurrentAudioUI();
   if (!$('#discoveryOverlay').hidden) closeDiscovery();
   if (reset) { state.round = 1; state.score = 0; }
@@ -149,7 +151,6 @@ async function newQuestion(reset = false) {
   $('#practiceStage').hidden = false;
   state.answered = false;
   $('#answerGrid').classList.remove('is-judged');
-  $('#revealPanel').hidden = true;
   $('#practiceStatus').textContent = '';
   $('#answerGrid').innerHTML = '<div class="answer-skeleton"></div>'.repeat(4);
   $('#roundLabel').textContent = `Sound ${state.round} of ${state.rounds}`;
@@ -248,29 +249,14 @@ function answerQuestion(id) {
   $('#sessionScore').textContent = state.score;
   updateDailyStreak();
   saveStats();
-  showReveal(correct);
-  if (isNewDiscovery) window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
+  $('#practiceStatus').textContent = correct ? 'Correct — cry identified.' : `That was ${state.current.name}.`;
+  if (isNewDiscovery) state.advanceTimer = window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
+  else state.advanceTimer = window.setTimeout(nextQuestion, reducedMotion.matches ? 350 : 1350);
 }
 
 function updateDailyStreak() {
   const today = new Date().toISOString().slice(0, 10);
   if (state.stats.lastDay !== today) state.stats.lastDay = today;
-}
-
-function showReveal(correct) {
-  $('#revealNumber').textContent = `#${pad(state.current.id)}`;
-  $('#revealImage').src = state.current.image;
-  $('#revealImage').alt = `${state.current.name} official artwork`;
-  $('#resultPill').textContent = correct ? 'Correct' : 'Good listen';
-  $('#resultPill').classList.toggle('is-wrong', !correct);
-  $('#revealName').textContent = state.current.name;
-  $('#revealMeta').textContent = `${state.current.types.join(' / ')} type · ${state.current.height / 10} m tall`;
-  $('#nextQuestion').innerHTML = state.round >= state.rounds ? 'Finish session' : 'Next sound <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M4 10h11m-4-4 4 4-4 4"/></svg>';
-  $('#revealPanel').hidden = false;
-  $('#revealPanel').classList.remove('is-scanning-in');
-  void $('#revealPanel').offsetWidth;
-  $('#revealPanel').classList.add('is-scanning-in');
-  $('#revealPanel').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
 }
 
 function showDiscovery() {
@@ -299,14 +285,14 @@ function showDiscovery() {
   if (state.soundOn && pokemon.cry) playDiscoveryCry();
 }
 
-function closeDiscovery() {
+function closeDiscovery(advance = true) {
   const overlay = $('#discoveryOverlay');
   overlay.classList.remove('is-open');
   document.body.classList.remove('has-discovery-open');
   state.audio.pause();
   $('#playDiscoveryCry').classList.remove('is-playing');
   window.setTimeout(() => { overlay.hidden = true; }, reducedMotion.matches ? 0 : 220);
-  $('#nextQuestion').focus({ preventScroll: true });
+  if (advance) state.advanceTimer = window.setTimeout(nextQuestion, reducedMotion.matches ? 0 : 180);
 }
 
 async function playDiscoveryCry() {
@@ -444,7 +430,6 @@ function bindEvents() {
   $('#continueDiscovery').addEventListener('click', closeDiscovery);
   $('#closeDiscovery').addEventListener('click', closeDiscovery);
   $('#discoveryOverlay').addEventListener('click', event => { if (event.target === event.currentTarget) closeDiscovery(); });
-  $('#nextQuestion').addEventListener('click', nextQuestion);
   $('#practiceAgain').addEventListener('click', () => newQuestion(true));
   $('#reviewProgress').addEventListener('click', () => switchView('progress'));
   $('#generationSelect').addEventListener('change', event => { state.generation = event.target.value; newQuestion(true); });
