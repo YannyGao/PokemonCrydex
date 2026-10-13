@@ -105,6 +105,7 @@ async function fetchPokemon(id) {
     cry: data.cries?.latest || data.cries?.legacy,
     image: data.sprites?.other?.['official-artwork']?.front_default || ART(data.id),
     sprite: data.sprites?.front_default || MINI(data.id),
+    gif: data.sprites?.other?.showdown?.front_default || null,
     types: data.types.map(item => item.type.name),
     height: data.height,
     weight: data.weight
@@ -142,6 +143,7 @@ function randomIds(count, generation = state.generation, exclude = []) {
 
 async function newQuestion(reset = false) {
   stopCurrentAudioUI();
+  if (!$('#discoveryOverlay').hidden) closeDiscovery();
   if (reset) { state.round = 1; state.score = 0; }
   $('#sessionComplete').hidden = true;
   $('#practiceStage').hidden = false;
@@ -217,12 +219,14 @@ state.audio.addEventListener('ended', () => {
   cancelAnimationFrame(state.waveformFrame);
   $('#playCry').classList.remove('is-playing');
   $('.sound-deck').classList.remove('is-playing');
+  $('#playDiscoveryCry')?.classList.remove('is-playing');
 });
 
 function answerQuestion(id) {
   if (state.answered || !state.current) return;
   state.answered = true;
   const correct = id === state.current.id;
+  const isNewDiscovery = correct && !state.stats.discovered.includes(state.current.id);
   state.stats.answered += 1;
   $('#answerGrid').classList.add('is-judged');
   $$('.answer-button').forEach(button => {
@@ -245,6 +249,7 @@ function answerQuestion(id) {
   updateDailyStreak();
   saveStats();
   showReveal(correct);
+  if (isNewDiscovery) window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
 }
 
 function updateDailyStreak() {
@@ -266,6 +271,56 @@ function showReveal(correct) {
   void $('#revealPanel').offsetWidth;
   $('#revealPanel').classList.add('is-scanning-in');
   $('#revealPanel').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
+}
+
+function showDiscovery() {
+  const pokemon = state.current;
+  if (!pokemon) return;
+  const image = $('#discoveryImage');
+  image.onerror = () => {
+    image.onerror = null;
+    image.src = pokemon.image;
+    image.alt = `${pokemon.name} official artwork`;
+    $('#discoveryFormat').textContent = 'Static record';
+  };
+  image.src = pokemon.gif || pokemon.image;
+  image.alt = pokemon.gif ? `${pokemon.name} animated sprite` : `${pokemon.name} official artwork`;
+  $('#discoveryFormat').textContent = pokemon.gif ? 'Animated record' : 'Static record';
+  $('#discoveryNumber').textContent = `#${pad(pokemon.id)}`;
+  $('#discoveryTitle').textContent = pokemon.name;
+  $('#discoverySummary').textContent = `${pokemon.name} and its cry are now registered in your Pokédex.`;
+  $('#discoveryType').textContent = pokemon.types.map(titleCase).join(' / ');
+  $('#discoveryHeight').textContent = `${(pokemon.height / 10).toFixed(1)} m`;
+  $('#discoveryWeight').textContent = `${(pokemon.weight / 10).toFixed(1)} kg`;
+  $('#discoveryOverlay').hidden = false;
+  document.body.classList.add('has-discovery-open');
+  requestAnimationFrame(() => $('#discoveryOverlay').classList.add('is-open'));
+  $('#continueDiscovery').focus({ preventScroll: true });
+  if (state.soundOn && pokemon.cry) playDiscoveryCry();
+}
+
+function closeDiscovery() {
+  const overlay = $('#discoveryOverlay');
+  overlay.classList.remove('is-open');
+  document.body.classList.remove('has-discovery-open');
+  state.audio.pause();
+  $('#playDiscoveryCry').classList.remove('is-playing');
+  window.setTimeout(() => { overlay.hidden = true; }, reducedMotion.matches ? 0 : 220);
+  $('#nextQuestion').focus({ preventScroll: true });
+}
+
+async function playDiscoveryCry() {
+  if (!state.soundOn) { showToast('Turn sound on to hear the cry.'); return; }
+  if (!state.current?.cry) { showToast('This cry is unavailable.'); return; }
+  try {
+    state.audio.pause();
+    state.audio.src = state.current.cry;
+    state.audio.currentTime = 0;
+    await state.audio.play();
+    $('#playDiscoveryCry').classList.add('is-playing');
+    state.stats.heard += 1;
+    saveStats();
+  } catch { showToast('The cry could not play. Tap again to retry.'); }
 }
 
 function nextQuestion() {
@@ -385,6 +440,10 @@ function bindEvents() {
   $$('[data-view]').forEach(button => button.addEventListener('click', () => switchView(button.dataset.view)));
   $$('[data-go-practice]').forEach(button => button.addEventListener('click', () => switchView('practice')));
   $('#playCry').addEventListener('click', playCurrent);
+  $('#playDiscoveryCry').addEventListener('click', playDiscoveryCry);
+  $('#continueDiscovery').addEventListener('click', closeDiscovery);
+  $('#closeDiscovery').addEventListener('click', closeDiscovery);
+  $('#discoveryOverlay').addEventListener('click', event => { if (event.target === event.currentTarget) closeDiscovery(); });
   $('#nextQuestion').addEventListener('click', nextQuestion);
   $('#practiceAgain').addEventListener('click', () => newQuestion(true));
   $('#reviewProgress').addEventListener('click', () => switchView('progress'));
@@ -403,6 +462,17 @@ function bindEvents() {
   $('#libraryGeneration').addEventListener('change', () => { state.libraryLimit = 40; renderLibrary(); });
   $('#loadMore').addEventListener('click', () => { state.libraryLimit += 40; renderLibrary(); });
   document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !$('#discoveryOverlay').hidden) { closeDiscovery(); return; }
+    if (!$('#discoveryOverlay').hidden) {
+      if (event.key === 'Tab') {
+        const controls = $$('#discoveryOverlay button:not([disabled])');
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      }
+      return;
+    }
     if (event.target.matches('input, select, button')) return;
     if (event.code === 'Space' && !$('#practiceView').hidden) { event.preventDefault(); playCurrent(); }
     if (/^[1-4]$/.test(event.key) && !state.answered && !$('#practiceView').hidden) $$('.answer-button')[Number(event.key) - 1]?.click();
