@@ -190,6 +190,107 @@ h1 { font-family: "Avenir Next Rounded", "Trebuchet MS", sans-serif; font-size: 
 .toast { position: fixed; z-index: 50; left: 50%; bottom: 28px; transform: translate(-50%, 30px); opacity: 0; pointer-events: none; background: var(--ink); color: white; padding: 11px 16px; border-radius: 10px; box-shadow: var(--shadow); font-size: .82rem; font-weight: 800; transition: opacity .2s, transform .2s; }
 .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
 
+body.has-discovery-open { overflow: hidden; }
+.discovery-overlay[hidden] { display: none; }
+.discovery-overlay {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(10, 14, 22, .78);
+  opacity: 0;
+  transition: opacity 180ms ease-out;
+}
+.discovery-overlay.is-open { opacity: 1; }
+.discovery-device {
+  width: min(860px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  color: #17263d;
+  background: #a41622;
+  border: 8px solid #2e3037;
+  border-radius: 18px 18px 32px 18px;
+  box-shadow: inset 0 0 0 3px #d54a50, 0 22px 60px rgba(0,0,0,.42);
+  transform: translateY(18px) scale(.965);
+  transition: transform 420ms var(--ease-screen);
+}
+.discovery-overlay.is-open .discovery-device { transform: translateY(0) scale(1); }
+.discovery-device__topbar {
+  min-height: 64px;
+  padding: 12px 16px 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #fff7dc;
+  border-bottom: 6px solid #2e3037;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .72rem;
+  font-weight: 900;
+}
+.discovery-device__topbar > span { display: flex; align-items: center; gap: 10px; }
+.discovery-device__topbar i { width: 14px; height: 14px; border-radius: 50%; background: #73e8b1; box-shadow: 0 0 0 5px #67202a, 0 0 18px rgba(115,232,177,.6); }
+.discovery-close { width: 38px; height: 38px; display: grid; place-items: center; color: #fff7dc; background: #76101a; border: 2px solid #e06a6d; border-radius: 7px; }
+.discovery-close:hover { background: #5c0b13; }
+.discovery-close svg { width: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.discovery-screen {
+  margin: 18px;
+  display: grid;
+  grid-template-columns: minmax(280px, .9fr) minmax(320px, 1.1fr);
+  overflow: hidden;
+  background: #dce7dc;
+  border: 8px solid #34343c;
+  border-radius: 12px 12px 24px 12px;
+  box-shadow: inset 0 0 0 2px #7f9589, 0 8px 0 #681019;
+}
+.discovery-visual {
+  position: relative;
+  min-height: 410px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #a9c4b4;
+  border-right: 3px solid #34343c;
+}
+.discovery-visual::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(28, 61, 49, .28);
+  border-radius: 5px;
+}
+.discovery-visual img { position: relative; z-index: 2; width: min(84%, 300px); height: 300px; object-fit: contain; image-rendering: auto; filter: drop-shadow(0 16px 9px rgba(28,55,45,.25)); }
+.discovery-shadow { position: absolute; z-index: 1; width: 58%; height: 20px; bottom: 52px; border-radius: 50%; background: rgba(27,54,43,.22); filter: blur(8px); }
+.discovery-index, .discovery-format { position: absolute; z-index: 3; top: 30px; font: 900 .68rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.discovery-index { left: 30px; }
+.discovery-format { right: 30px; color: #426052; }
+.discovery-data { min-width: 0; padding: 42px 38px 36px; display: flex; flex-direction: column; justify-content: center; }
+.discovery-status { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: #17634c; text-transform: uppercase; letter-spacing: .1em; font-size: .68rem; font-weight: 900; }
+.discovery-status span { width: 7px; height: 7px; border-radius: 50%; background: #1a8b66; box-shadow: 0 0 9px rgba(26,139,102,.45); }
+.discovery-data h2 { margin: 0 0 8px; font-size: clamp(2.2rem, 6vw, 4.5rem); line-height: .95; letter-spacing: -.04em; text-transform: capitalize; }
+.discovery-data > p:not(.discovery-status) { max-width: 42ch; margin-bottom: 24px; color: #52645b; line-height: 1.5; }
+.discovery-facts { margin: 0 0 28px; display: grid; grid-template-columns: 1.3fr .8fr .9fr; border-block: 2px solid #71867a; }
+.discovery-facts div { min-width: 0; padding: 13px 12px 13px 0; }
+.discovery-facts div + div { padding-left: 12px; border-left: 1px solid #91a59a; }
+.discovery-facts dt { margin-bottom: 5px; color: #64786e; font-size: .62rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.discovery-facts dd { margin: 0; font-weight: 900; text-transform: capitalize; font-variant-numeric: tabular-nums; }
+.discovery-actions { display: flex; gap: 10px; }
+.discovery-actions .primary-button { flex: 1; border-radius: 6px; }
+.discovery-cry { min-height: 46px; padding: 10px 16px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; color: #17263d; background: #f1c84e; border: 2px solid #6e5712; border-radius: 6px; box-shadow: inset 0 -3px 0 #b88917; font-weight: 900; }
+.discovery-cry:hover { background: #ffda63; }
+.discovery-cry svg { width: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.discovery-cry.is-playing svg { animation: discoveryPulse 700ms ease-in-out infinite alternate; }
+@keyframes discoveryPulse { to { transform: scale(1.16); } }
+
+@keyframes discoveryResolve {
+  0% { opacity: 0; transform: scale(.82); filter: brightness(1.8) saturate(.2); }
+  55% { opacity: 1; filter: brightness(1.25) saturate(.65); }
+  100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 16px 9px rgba(28,55,45,.25)); }
+}
+.discovery-overlay.is-open .discovery-visual img { animation: discoveryResolve 720ms var(--ease-screen) 120ms both; }
+
 @media (max-width: 940px) {
   .app-shell { grid-template-columns: 82px minmax(0,1fr); }
   .sidebar { padding: 26px 14px; align-items: center; }
@@ -228,6 +329,20 @@ h1 { font-family: "Avenir Next Rounded", "Trebuchet MS", sans-serif; font-size: 
   .mobile-nav button { border: 0; background: transparent; color: #8994a8; display: grid; place-items: center; align-content: center; gap: 3px; font-size: .62rem; font-weight: 800; }
   .mobile-nav button.is-active { color: var(--yellow); }.mobile-nav svg { width: 21px; height: 21px; }
   .toast { bottom: 88px; max-width: calc(100vw - 32px); text-align: center; }
+  .discovery-overlay { padding: 10px; }
+  .discovery-device { max-height: calc(100vh - 20px); border-width: 6px; border-radius: 14px 14px 24px 14px; }
+  .discovery-device__topbar { min-height: 54px; border-bottom-width: 5px; }
+  .discovery-screen { margin: 10px; grid-template-columns: 1fr; border-width: 6px; }
+  .discovery-visual { min-height: 260px; border-right: 0; border-bottom: 3px solid #34343c; }
+  .discovery-visual img { width: min(70%, 220px); height: 205px; }
+  .discovery-shadow { bottom: 28px; }
+  .discovery-index, .discovery-format { top: 20px; }
+  .discovery-index { left: 20px; }.discovery-format { right: 20px; }
+  .discovery-data { padding: 26px 20px 22px; }
+  .discovery-data h2 { font-size: 2.6rem; }
+  .discovery-data > p:not(.discovery-status) { margin-bottom: 18px; }
+  .discovery-facts { margin-bottom: 20px; }
+  .discovery-actions { display: grid; grid-template-columns: 1fr 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -473,4 +588,6 @@ h1 { text-transform: uppercase; font-size: clamp(1.9rem, 3.4vw, 3rem); }
     filter: none !important;
   }
   .reveal-panel.is-scanning-in::after { display: none; }
+  .discovery-overlay, .discovery-device { transition: none !important; }
+  .discovery-overlay.is-open .discovery-visual img, .discovery-cry.is-playing svg { animation: none !important; }
 }
