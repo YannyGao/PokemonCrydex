@@ -181,9 +181,8 @@ function renderAnswers() {
   $('#answerGrid').innerHTML = state.choices.map((pokemon, index) => `
     <button class="answer-button answer-dock" data-id="${pokemon.id}" style="--answer-index:${index}">
       <span class="answer-main">
-        <span class="answer-key">${index + 1}</span>
         <span class="answer-sprite"><img src="${pokemon.image}" alt="${pokemon.name}" /></span>
-        <span class="answer-identity"><strong>${pokemon.name}</strong><small>#${pad(pokemon.id)}</small></span>
+        <span class="answer-identity"><strong>${pokemon.name}</strong></span>
       </span>
       <svg class="answer-check" aria-hidden="true" viewBox="0 0 24 24"><path d="m6 12 4 4 8-9"/></svg>
     </button>`).join('');
@@ -245,9 +244,7 @@ function answerQuestion(id) {
   $$('.answer-button').forEach(button => {
     button.disabled = true;
     const buttonId = Number(button.dataset.id);
-    if (buttonId === state.current.id) button.classList.add('correct');
-    else if (buttonId === id) button.classList.add('wrong');
-    if (buttonId === id) button.classList.add('is-selected');
+    if (buttonId === id) button.classList.add(correct ? 'correct' : 'wrong', 'is-selected');
   });
   if (correct) {
     state.score += 100;
@@ -261,7 +258,8 @@ function answerQuestion(id) {
   $('#sessionScore').textContent = state.score;
   updateDailyStreak();
   saveStats();
-  $('#practiceStatus').textContent = correct ? 'Correct — cry identified.' : `That was ${state.current.name}.`;
+  $('#practiceStatus').textContent = correct ? 'Correct choice.' : 'Not quite. Loading the next sound.';
+  showToast(correct ? 'Correct choice!' : 'Not quite — try the next cry.', correct ? 'success' : 'error');
   if (isNewDiscovery) {
     state.discoveryToken = answeredToken;
     state.advanceTimer = window.setTimeout(showDiscovery, reducedMotion.matches ? 0 : 420);
@@ -449,9 +447,12 @@ function renderProgress() {
 }
 
 let toastTimer;
-function showToast(message) {
+function showToast(message, tone = 'neutral') {
   clearTimeout(toastTimer);
   $('#toast').textContent = message;
+  $('#toast').classList.remove('is-success', 'is-error');
+  if (tone === 'success') $('#toast').classList.add('is-success');
+  if (tone === 'error') $('#toast').classList.add('is-error');
   $('#toast').classList.add('is-visible');
   toastTimer = setTimeout(() => $('#toast').classList.remove('is-visible'), 2600);
 }
@@ -494,7 +495,6 @@ function bindEvents() {
     }
     if (event.target.matches('input, select, button')) return;
     if (event.code === 'Space' && !$('#practiceView').hidden) { event.preventDefault(); playCurrent(); }
-    if (/^[1-4]$/.test(event.key) && !state.answered && !$('#practiceView').hidden) $$('.answer-button')[Number(event.key) - 1]?.click();
   });
 }
 
