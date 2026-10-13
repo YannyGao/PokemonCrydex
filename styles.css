@@ -112,17 +112,6 @@ h1 { font-family: "Avenir Next Rounded", "Trebuchet MS", sans-serif; font-size: 
 .answer-skeleton { height: 66px; border-radius: 12px; background: linear-gradient(90deg, #e9dfca, #f7f0df, #e9dfca); background-size: 200% 100%; animation: shimmer 1.2s linear infinite; }
 @keyframes shimmer { to { background-position: -200% 0; } }
 
-.reveal-panel { margin-top: 18px; background: var(--yellow); border-radius: var(--radius); min-height: 240px; display: grid; grid-template-columns: 38% 1fr; overflow: hidden; box-shadow: var(--shadow); }
-.reveal-panel[hidden] { display: none; }
-.reveal-art { background: rgba(255,255,255,.38); position: relative; min-height: 240px; display: grid; place-items: center; }
-.reveal-art img { width: min(240px, 90%); height: 220px; object-fit: contain; filter: drop-shadow(0 14px 12px rgba(60,50,20,.18)); animation: reveal .45s cubic-bezier(.2,.8,.2,1) both; }
-@keyframes reveal { from { transform: scale(.72) rotate(-5deg); opacity: 0; } }
-.reveal-number { position: absolute; top: 16px; left: 16px; font-weight: 900; font-size: .72rem; letter-spacing: .08em; }
-.reveal-copy { padding: 34px clamp(24px, 5vw, 52px); display: flex; flex-direction: column; align-items: flex-start; justify-content: center; }
-.result-pill { border: 1px solid currentColor; border-radius: 999px; padding: 5px 9px; font-size: .66rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 900; }
-.result-pill.is-wrong { color: #8d2a25; }
-.reveal-copy h2 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.04em; margin: 10px 0 6px; text-transform: capitalize; }
-.reveal-copy p { color: #554c33; margin-bottom: 20px; text-transform: capitalize; }
 .primary-button, .secondary-button { border: 0; border-radius: 10px; min-height: 46px; padding: 12px 17px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
 .primary-button { color: white; background: var(--ink); }
 .primary-button:hover { background: #293955; }
@@ -313,9 +302,6 @@ body.has-discovery-open { overflow: hidden; }
   .play-button { width: 72px; height: 72px; }.play-button svg { width: 30px; }
   .waveform { height: 58px; gap: 2px; }
   .answer-grid { grid-template-columns: 1fr; }
-  .reveal-panel { grid-template-columns: 42% 58%; min-height: 220px; }
-  .reveal-art { min-height: 220px; }.reveal-art img { height: 170px; }
-  .reveal-copy { padding: 26px 18px; }.reveal-copy h2 { font-size: 1.8rem; }
   .library-tools { grid-template-columns: 1fr; }.library-tools select { width: 100%; }
   .library-count { display: block; }.library-count span { display: block; margin-top: 5px; }
   .pokemon-row { grid-template-columns: 36px 48px minmax(0,1fr) 44px 44px; gap: 5px; min-height: 76px; padding-right: 0; }
@@ -471,8 +457,6 @@ h1 { text-transform: uppercase; font-size: clamp(1.9rem, 3.4vw, 3rem); }
 .answer-button.wrong .answer-check { transform: rotate(45deg); }
 .answer-skeleton { height: 126px; border: 2px solid #7c8e85; background: #b7c8be; }
 
-.reveal-panel { border: 8px solid #34343c; border-radius: 12px 12px 24px 12px; background: #f2c848; box-shadow: 0 9px 0 #78101a, 0 18px 28px rgba(36,4,8,.2); }
-.reveal-art { background: #b8cec0; border-right: 3px solid #34343c; }
 .primary-button { border-radius: 6px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.3); }
 
 .pokemon-list { border-top: 3px solid #283b36; }
@@ -547,28 +531,6 @@ h1 { text-transform: uppercase; font-size: clamp(1.9rem, 3.4vw, 3rem); }
   transition: opacity var(--motion-fast) ease-out, transform var(--motion-fast) ease-out;
 }
 
-.reveal-panel { position: relative; isolation: isolate; }
-.reveal-panel.is-scanning-in { animation: revealScreen var(--motion-scan) var(--ease-screen) both; }
-.reveal-panel.is-scanning-in::after {
-  content: "";
-  position: absolute;
-  z-index: 5;
-  pointer-events: none;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 42%, rgba(255,255,230,.78) 50%, transparent 58%);
-  transform: translateY(-100%);
-  animation: revealScan var(--motion-scan) ease-out both;
-}
-@keyframes revealScreen {
-  from { opacity: .15; clip-path: inset(0 0 100% 0); }
-  to { opacity: 1; clip-path: inset(0); }
-}
-@keyframes revealScan { to { transform: translateY(100%); } }
-.reveal-panel.is-scanning-in .reveal-art img { animation: specimenResolve 520ms var(--ease-screen) 120ms both; }
-@keyframes specimenResolve {
-  from { opacity: 0; transform: scale(.92); filter: brightness(1.7) saturate(.3); }
-  to { opacity: 1; transform: scale(1); filter: drop-shadow(0 14px 12px rgba(60,50,20,.18)); }
-}
 
 .view.is-view-entering { animation: viewBoot var(--motion-medium) var(--ease-screen) both; }
 @keyframes viewBoot {
@@ -578,8 +540,6 @@ h1 { text-transform: uppercase; font-size: clamp(1.9rem, 3.4vw, 3rem); }
 @media (prefers-reduced-motion: reduce) {
   .answer-button.answer-dock,
   .answer-button.is-selected,
-  .reveal-panel.is-scanning-in,
-  .reveal-panel.is-scanning-in .reveal-art img,
   .view.is-view-entering {
     animation: none !important;
     opacity: 1 !important;
@@ -587,7 +547,6 @@ h1 { text-transform: uppercase; font-size: clamp(1.9rem, 3.4vw, 3rem); }
     clip-path: none !important;
     filter: none !important;
   }
-  .reveal-panel.is-scanning-in::after { display: none; }
   .discovery-overlay, .discovery-device { transition: none !important; }
   .discovery-overlay.is-open .discovery-visual img, .discovery-cry.is-playing svg { animation: none !important; }
 }
